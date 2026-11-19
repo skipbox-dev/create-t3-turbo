@@ -1,0 +1,42 @@
+# cicdbench rehearsal copy (scripts/ops/skipbox-bench-cicd-gen.rb): upstream's workflow with cicdbench's listed changes.
+name: CI
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: "${{ github.ref != 'refs/heads/main' }}"
+env:
+  FORCE_COLOR: 3
+jobs:
+  lint:
+    runs-on: skipbox-lab
+    steps:
+    - uses: actions/checkout@v5
+    - name: Setup
+      uses: "./tooling/github/setup"
+    - name: Copy env
+      shell: bash
+      run: cp .env.example .env
+    - name: Lint
+      run: pnpm lint && pnpm lint:ws
+    timeout-minutes: 30
+  format:
+    runs-on: skipbox-lab
+    steps:
+    - uses: actions/checkout@v5
+    - name: Setup
+      uses: "./tooling/github/setup"
+    - name: Format
+      run: pnpm format
+    timeout-minutes: 30
+  typecheck:
+    runs-on: skipbox-lab
+    steps:
+    - uses: actions/checkout@v5
+    - name: Setup
+      uses: "./tooling/github/setup"
+    - name: Typecheck
+      run: pnpm typecheck
+    timeout-minutes: 30
+'on':
+  pull_request:
+    branches:
+    - "*"
